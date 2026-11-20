@@ -13,7 +13,7 @@
 | [site/README.md](../site/README.md) | 合集设置说明 | `tags.json` 词表、`meta.json` 的规范版本声明、为什么没有站点工程 | 改标签、改接受的格式版本、排查构建版本判定 | 维护者、贡献者 |
 | [schemas/README.md](../schemas/README.md) | JSON Schema 索引 | 五份 schema 的约束对象与要点、Schema 管不到而由脚本承担的判定 | 改字段、加校验、判断某份 JSON 结构是否合法 | 维护者、Agent |
 | [docs/design/asset-collection-pipeline.md](design/asset-collection-pipeline.md) | 流水线机制与取舍的设计说明 | catalog 驱动模型、拉取模型与 `files` 清单的理由、三层清单与 revision、证书与签名边界、异常剔除、与插件合集的差异、已否决方案、未定稿项 | 判断「为什么这样定」「这样改会不会破坏既有取舍」时 | 维护者、Agent |
-| [docs/index.md](index.md) | 本索引 | 文档主表、冲突时的优先级、文档分层、目录结构、维护约定 | 找文档、判断该读哪一份、新增或删除文档时 | Agent、维护者 |
+| [docs/README.md](index.md) | 本索引 | 文档主表、冲突时的优先级、文档分层、目录结构、维护约定 | 找文档、判断该读哪一份、新增或删除文档时 | Agent、维护者 |
 
 ## 二、冲突时以谁为准
 
