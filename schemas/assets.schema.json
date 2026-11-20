@@ -1,0 +1,57 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://omds-chat.github.io/awesome-dsc-humanize-asset/schemas/assets.schema.json",
+  "title": "dsc-humanize-asset-collection-assets-index",
+  "description": "发布目录的资产包目录索引 assets.json。顶层是数组,每个包一条记录,与同一目录下的 assets/ 树成对;由 scripts/build-from-catalog.mjs 生成,只收录本次发布实际入库的包,被剔除的包不出现在这里。它不含版本号、说明与任何摘要:版本与摘要在三层清单与各包目录里。",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "properties": {
+      "asset_id": {
+        "type": "string",
+        "pattern": "^[a-z][a-z0-9-]{2,63}$",
+        "description": "包标识,取自包元数据的 id,与 assets/<作者>/<包标识>/ 目录名一致"
+      },
+      "author": {
+        "type": "string",
+        "minLength": 1,
+        "description": "作者名,即 assets/<作者> 的目录名,按 GitHub 用户名规则书写"
+      },
+      "tag": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "minLength": 1
+        },
+        "description": "标签,取自该包 package.json 的 tags,省略时为空数组;取值必须在 tags.json 的预设清单内"
+      },
+      "types": {
+        "type": "array",
+        "minItems": 1,
+        "uniqueItems": true,
+        "items": {
+          "type": "string",
+          "enum": ["persona", "labels", "strategies", "injection"]
+        },
+        "description": "内容类型声明,取自包元数据的 types,与包内实际内容双向一致"
+      }
+    },
+    "required": [
+      "asset_id",
+      "author",
+      "tag",
+      "types"
+    ],
+    "additionalProperties": false
+  },
+  "examples": [
+    [
+      {
+        "asset_id": "dsc-example-asset",
+        "author": "omds-chat",
+        "tag": ["tone", "general"],
+        "types": ["persona", "labels", "strategies", "injection"]
+      }
+    ]
+  ]
+}

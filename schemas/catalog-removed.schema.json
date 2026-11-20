@@ -1,0 +1,55 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://omds-chat.github.io/awesome-dsc-humanize-asset/schemas/catalog-removed.schema.json",
+  "title": "dsc-humanize-asset-collection-removed",
+  "description": "catalog/removed.json 的结构:已下架的资产包清单。顶层是数组,没有记录时保持空数组。",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "properties": {
+      "id": {
+        "type": "string",
+        "pattern": "^[a-z][a-z0-9-]{2,63}$",
+        "description": "被下架的包标识,与下架前的 package.json 一致"
+      },
+      "author": {
+        "type": "string",
+        "minLength": 1,
+        "description": "下架前的作者目录名"
+      },
+      "base_url": {
+        "type": "string",
+        "minLength": 1,
+        "description": "下架前的作者站点基址,便于外部查阅追认来源"
+      },
+      "removed_in": {
+        "type": "string",
+        "minLength": 1,
+        "description": "下架发生在哪个发布版本,写 release tag,例如 v1.0.0"
+      },
+      "note": {
+        "type": "string",
+        "minLength": 1,
+        "description": "可选,一句话说明下架原因或后续去向"
+      }
+    },
+    "required": [
+      "id",
+      "author",
+      "base_url",
+      "removed_in"
+    ],
+    "additionalProperties": false
+  },
+  "examples": [
+    [
+      {
+        "id": "dsc-example-asset",
+        "author": "omds-chat",
+        "base_url": "https://omds-chat.github.io/dsc-example-asset/",
+        "removed_in": "v1.0.0",
+        "note": "作者改为独立分发,不再随本合集发布。"
+      }
+    ]
+  ]
+}

@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://omds-chat.github.io/awesome-dsc-humanize-asset/schemas/catalog-package.schema.json",
+  "title": "dsc-humanize-asset-collection-catalog-package",
+  "description": "catalog/<作者>/<包标识>/package.json 的结构。只登记包标识、作者站点基址、源码地址与标签;包的名称、说明、许可证、版本与内容类型全部来自作者站点上的包元数据,登记里不重复一份。",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9-]{2,63}$",
+      "description": "包标识,与所在目录名逐字符一致,并与作者站点上各版本 asset.json 的 id 一致。小写字母开头,只允许小写字母、数字与连字符,长度 3 到 64。"
+    },
+    "base_url": {
+      "type": "string",
+      "minLength": 1,
+      "description": "作者站点基址,http 或 https 开头的绝对地址,必须以斜杠结尾。CI 只从这个地址取版本索引与包内文件,不从 Release 取任何资产。",
+      "pattern": "^https?://[^/\\s?#]+(?:/[^?\\s#]*)?/$"
+    },
+    "repo_link": {
+      "type": "string",
+      "minLength": 1,
+      "description": "包的源码或发布仓库地址,写完整的绝对地址,供评审与追溯。"
+    },
+    "tags": {
+      "type": "array",
+      "description": "包的标签,可省略,省略等价于空数组。元素必须是非空字符串且不重复;取值必须来自 site/tags.json 的预设清单。",
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    }
+  },
+  "required": [
+    "id",
+    "base_url",
+    "repo_link"
+  ],
+  "additionalProperties": false,
+  "examples": [
+    {
+      "id": "dsc-example-asset",
+      "base_url": "https://omds-chat.github.io/dsc-example-asset/",
+      "repo_link": "https://github.com/omds-chat/dsc-example-asset",
+      "tags": ["tone", "general"]
+    }
+  ]
+}

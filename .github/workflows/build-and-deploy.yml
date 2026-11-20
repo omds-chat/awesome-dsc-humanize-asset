@@ -1,0 +1,180 @@
+name: build-and-deploy
+
+# 分发模型:来源只有资产作者自己的站点(base_url),每次 Release 全量重建发布目录并直接替换,不做版本留存。
+# 本流程不把发布目录提交回仓库,因此只需要读源码的权限。
+on:
+  release:
+    types:
+      - published
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+# 私钥只有一处来源:secrets.EEC_SECRET_KEY,即本合集终端签名证书的私钥,只在本流程内存与临时目录中出现。
+# 根证书私钥属于 dsc-humanize 仓库的离线环境,绝不出现在本流程。
+# 发布目录里的证书只有 certs/awesome-dsc-humanize-asset/,根证书不下发。
+env:
+  EEC_SECRET_KEY: ${{ secrets.EEC_SECRET_KEY }}
+  ROOT_CA_PEM: ${{ secrets.ROOT_CA_PEM }}
+  ROOT_CA_URL: ${{ vars.ROOT_CA_URL }}
+  PUBLISHED_BASE_URL: ${{ vars.PUBLISHED_BASE_URL }}
+
+jobs:
+  build:
+    name: Build release directory
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Check OpenSSL
+        run: openssl version
+
+      # 根证书二选一:secrets.ROOT_CA_PEM 直接给 PEM 文本;vars.ROOT_CA_URL 给下载地址。
+      # 它只用于本流程自检证书链,不随发布目录分发。
+      - name: Resolve root CA
+        run: |
+          set -euo pipefail
+          target="$RUNNER_TEMP/root_ca.crt"
+          if [ -n "${ROOT_CA_PEM:-}" ]; then
+            printf '%s\n' "$ROOT_CA_PEM" > "$target"
+            echo "根证书来源: secrets.ROOT_CA_PEM"
+          elif [ -n "${ROOT_CA_URL:-}" ]; then
+            curl -fsSL "$ROOT_CA_URL" -o "$target"
+            echo "根证书来源: $ROOT_CA_URL"
+          else
+            echo "::error::缺少根证书,请设置 secrets.ROOT_CA_PEM 或 vars.ROOT_CA_URL"
+            exit 1
+          fi
+          echo "ROOT_CA_PATH=$target" >> "$GITHUB_ENV"
+
+      # 强校验:本合集 EEC 必须由资产根签发,未过期,keyUsage 含 digitalSignature,basicConstraints 为 CA:FALSE。
+      - name: Verify EEC against root CA
+        run: |
+          set -euo pipefail
+          eec="certs/awesome-dsc-humanize-asset/awesome-dsc-humanize-asset-eec.crt"
+          test -s "$eec"
+          openssl verify -CAfile "$ROOT_CA_PATH" "$eec"
+          openssl x509 -in "$eec" -noout -subject -issuer -enddate
+          openssl x509 -in "$eec" -noout -ext keyUsage
+          openssl x509 -in "$eec" -noout -ext basicConstraints
+          openssl x509 -in "$eec" -noout -checkend 0
+
+      - name: Check script syntax
+        run: node scripts/check-syntax.mjs
+
+      # 仓库级校验:只读 catalog/、certs/ 与 site/,不需要任何构建产物。
+      - name: Verify repository
+        run: node scripts/verify-catalog.mjs
+
+      # 按 catalog 从作者站点拉取资产包,整理成发布目录,并生成三层清单;签名留给下一步。
+      - name: Pull assets and assemble release directory
+        run: |
+          set -euo pipefail
+          published="${PUBLISHED_BASE_URL:-https://${GITHUB_REPOSITORY_OWNER}.github.io/${GITHUB_REPOSITORY#*/}/}"
+          node scripts/build-from-catalog.mjs \
+            --catalog catalog \
+            --certs certs \
+            --meta site/meta.json \
+            --tags site/tags.json \
+            --out dist/pages \
+            --published-base "$published"
+
+      # 清单签名:脚本不实现签名,这里用 openssl 逐层签。参数固定,不改默认值。
+      - name: Sign manifests with EEC
+        run: |
+          set -euo pipefail
+          test -n "${EEC_SECRET_KEY:-}" || { echo "::error::缺少 secrets.EEC_SECRET_KEY"; exit 1; }
+          key="$RUNNER_TEMP/eec_secret.pem"
+          printf '%s\n' "$EEC_SECRET_KEY" > "$key"
+          eec="dist/pages/certs/awesome-dsc-humanize-asset/awesome-dsc-humanize-asset-eec.crt"
+          test -s "$eec"
+          count=0
+          while IFS= read -r manifest; do
+            openssl cms -sign -binary -md sha512 -outform DER \
+              -in "$manifest" -out "$manifest.sig" \
+              -signer "$eec" -inkey "$key" -nocerts -noattr
+            count=$((count + 1))
+          done < <(find dist/pages -type f -name manifest.json | sort)
+          echo "已签名 $count 层清单"
+          test "$count" -ge 1
+
+      # 发布目录校验:结构、索引与登记副本的一致性、三层清单覆盖与哈希、签名文件就位。
+      - name: Verify release directory
+        run: node scripts/verify-bundle.mjs --dir dist/pages
+
+      # 不经过 Node 脚本,直接用 openssl 独立验签,避免脚本与 openssl 语义分叉。
+      - name: Verify manifest signatures with openssl
+        run: |
+          set -euo pipefail
+          eec="dist/pages/certs/awesome-dsc-humanize-asset/awesome-dsc-humanize-asset-eec.crt"
+          count=0
+          while IFS= read -r manifest; do
+            sig="$manifest.sig"
+            test -f "$sig" || { echo "::error::缺少清单签名 $sig"; exit 1; }
+            openssl cms -verify -binary -md sha512 -inform DER \
+              -in "$sig" -content "$manifest" \
+              -CAfile "$ROOT_CA_PATH" -certfile "$eec" > /dev/null
+            count=$((count + 1))
+          done < <(find dist/pages -type f -name manifest.json | sort)
+          echo "已验签 $count 层清单"
+
+      # 结构自检:根目录该有的索引与清单都在,根证书不下发,certs/ 下只有来源文件夹。
+      - name: Check release layout
+        run: |
+          set -euo pipefail
+          test -f dist/pages/meta.json
+          test -f dist/pages/tags.json
+          test -f dist/pages/assets.json
+          test -f dist/pages/manifest.json
+          test -f dist/pages/manifest.json.sig
+          test -f dist/pages/assets/author_manifest.json
+          test -f dist/pages/catalog/removed.json
+          test -f dist/pages/catalog/index.json
+          test -f dist/pages/catalog/anomalies.json
+          test -f dist/pages/certs/awesome-dsc-humanize-asset/awesome-dsc-humanize-asset-eec.crt
+          for stray in dist/pages/certs/*; do
+            if [ ! -d "$stray" ]; then
+              echo "::error::certs/ 下只允许来源文件夹,发现散落文件: $stray"
+              exit 1
+            fi
+          done
+          if [ -e dist/pages/certs/dsc-humanize ]; then
+            echo "::error::发布目录不得下发根证书,锚只在本仓库 certs/dsc-humanize"
+            exit 1
+          fi
+          echo "发布目录结构检查通过"
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist/pages
+
+  deploy:
+    name: Deploy Pages
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

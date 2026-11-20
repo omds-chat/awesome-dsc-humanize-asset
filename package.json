@@ -1,0 +1,30 @@
+{
+  "name": "awesome-dsc-humanize-asset",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "dsc-humanize 的社区资产包合集,按目录登记从作者站点拉取资产包并重新签名三层清单",
+  "license": "Apache-2.0",
+  "author": "omds-chat",
+  "homepage": "https://omds-chat.github.io/awesome-dsc-humanize-asset/",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/omds-chat/awesome-dsc-humanize-asset.git"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "type": "node scripts/check-syntax.mjs",
+    "verify:catalog": "node scripts/verify-catalog.mjs",
+    "verify:pull": "node scripts/verify-pull.mjs --dir dist/pages",
+    "verify:bundle": "node scripts/verify-bundle.mjs --dir dist/pages",
+    "build": "node scripts/build-from-catalog.mjs --catalog catalog --certs certs --meta site/meta.json --tags site/tags.json --out dist/pages"
+  },
+  "keywords": [
+    "dsc",
+    "dsc-humanize",
+    "asset-collection",
+    "pki"
+  ]
+}
