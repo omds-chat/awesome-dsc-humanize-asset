@@ -202,11 +202,7 @@ The EEC is issued by the asset root in the dsc-humanize repository; this reposit
 
 ## How to get a package included
 
-1. Open a pull request registering the package in `catalog/`: `catalog/<author>/author.json` and `catalog/<author>/<package id>/package.json`. Fields and site conventions are described in [catalog/README.md](catalog/README.md).
-2. After merging, CI pulls at release time: `versions.json` from `base_url`, then every package file listed in its `files` field, written into the `assets/` tree of the release directory.
-3. CI assembles the release directory: `meta.json` and `tags.json` from `site/`, `assets.json` generated from the catalog, the `catalog/` copy (without excluded authors and packages) and the EEC under `certs/`, then the L1, L2 and L3 manifests.
-4. CI signs the three manifests with the collection EEC, producing `manifest.json.sig`.
-5. CI cross-checks `assets.json`, the `catalog/` copy, the `assets/` tree and the manifests, independently verifies signatures with `openssl`, and only then replaces the published site wholesale.
+The complete inclusion guide for asset authors is [CONTRIBUTING.md](CONTRIBUTING.md) (written in Chinese): inclusion conditions, preparing the package and the registration files, local checks, what the machine verifies after merge, the signing boundary and common rejection reasons. Registration fields and the site conventions are described in [catalog/README.md](catalog/README.md), and the CI steps and failure boundaries in [.github/pipeline.README.md](.github/pipeline.README.md). This section no longer maintains its own copy of the steps.
 
 ## How consumers fetch packages
 

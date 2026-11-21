@@ -9,6 +9,7 @@
 | [README.md](../README.md) | 合集对外的总说明 | 定位与收录范围、发布目录结构、三层清单与签名、校验规则、收录流程、消费方取件表、本地校验 | 第一次了解本合集、核对分发结构与签名边界 | 用户、贡献者 |
 | [README.en-US.md](../README.en-US.md) | 上一行的英文版 | 与 README.md 逐节对应 | 需要英文说明或对外沟通时 | 用户、贡献者 |
 | [catalog/README.md](../catalog/README.md) | 收录登记的唯一入口说明 | 登记目录结构、`author.json` 与 `package.json` 字段、作者站点发布约定、标签词表、收录后的处理、下架与 `removed.json` | 提交收录、修改登记、撤回或下架包时 | 贡献者 |
+| [CONTRIBUTING.md](../CONTRIBUTING.md) | 面向资产作者的收录指南 | 收录条件、包与登记文件的准备、本地校验、合并后的机器核对、证书与签名边界、常见拒绝原因 | 准备投稿、写 PR 说明、判断登记为什么被拒时 | 贡献者 |
 | [.github/pipeline.README.md](../.github/pipeline.README.md) | 构建流水线说明 | 步骤与失败边界、证书位置与是否下发、签名命令、发布目录结构与清单覆盖、revision 语义、本地复现 | 改流水线、复现构建、排查发布失败 | 维护者 |
 | [site/README.md](../site/README.md) | 合集设置说明 | `tags.json` 词表、`meta.json` 的规范版本声明、为什么没有站点工程 | 改标签、改接受的格式版本、排查构建版本判定 | 维护者、贡献者 |
 | [schemas/README.md](../schemas/README.md) | JSON Schema 索引 | 五份 schema 的约束对象与要点、Schema 管不到而由脚本承担的判定 | 改字段、加校验、判断某份 JSON 结构是否合法 | 维护者、Agent |
@@ -34,7 +35,7 @@
 
 | 层 | 文档 | 面向谁 | 读它的前提 |
 |:---:|:---:|:---:|:---:|
-| 对外文档 | README.md、README.en-US.md、catalog/README.md | 用户与投稿作者 | 不需要先读设计文档:收录范围、登记规则与分发结构在这三份里自足 |
+| 对外文档 | README.md、README.en-US.md、CONTRIBUTING.md、catalog/README.md | 用户与投稿作者 | 不需要先读设计文档:收录范围、登记规则与分发结构在这四份里自足 |
 | 维护者文档 | .github/pipeline.README.md、site/README.md、schemas/README.md、docs/design/asset-collection-pipeline.md | 改流水线、字段与合集设置的维护者 | 先读过对外文档,再按本次改动对象选一份 |
 | Agent 执行文档 | 本索引、`schemas/` 的 JSON 与 `scripts/` 的实际行为 | Agent | 从本索引找入口:结构与合法性读 schema,实际行为读脚本,取舍读设计文档 |
 
@@ -53,6 +54,7 @@ awesome-dsc-humanize-asset/
 ├── LICENSE
 ├── README.md                       中文总览
 ├── README.en-US.md                 英文总览
+├── CONTRIBUTING.md                 资产作者收录指南
 ├── package.json                    工程信息与脚本入口
 ├── catalog/                        收录登记:作者、站点基址与包标识
 │   ├── README.md                   登记说明与作者站点发布约定
@@ -61,7 +63,7 @@ awesome-dsc-humanize-asset/
 │   ├── dsc-humanize/               资产侧唯一信任锚:根证书与配对公钥
 │   └── awesome-dsc-humanize-asset/ 本合集终端签名证书与配对公钥
 ├── docs/
-│   ├── index.md                    文档索引(本文)
+│   ├── README.md                   文档索引(本文)
 │   └── design/
 │       └── asset-collection-pipeline.md   流水线机制与取舍
 ├── schemas/                        本仓库自有格式的 JSON Schema

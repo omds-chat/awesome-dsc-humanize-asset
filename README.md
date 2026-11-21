@@ -202,11 +202,7 @@ EEC 由 dsc-humanize 仓库的资产根签发,本仓库不能自签,也不能为
 
 ## 收录流程
 
-1. 提交 PR,在 `catalog/` 登记:`catalog/<作者>/author.json` 与 `catalog/<作者>/<包标识>/package.json`。字段与站点发布约定见 [catalog/README.md](catalog/README.md)。
-2. 合并后,CI 在 Release 时按登记逐条拉取:从 `base_url` 取 `versions.json`,再按其中的 `files` 取出每个版本的包内文件,写入发布目录的 `assets/` 树。
-3. 组装发布目录:`meta.json` 与 `tags.json` 取自 `site/`,`assets.json` 由 catalog 生成,`catalog/`(本次剔除的作者与包不在其中)与 `certs/` 的 EEC 复制进来,再逐层生成 L1、L2、L3 清单。
-4. 用合集 EEC 给三层清单签名,产出 `manifest.json.sig`。
-5. 校验:交叉比对 `assets.json`、`catalog/` 副本、`assets/` 树与三层清单,再用 `openssl` 独立验签;全部通过后整体替换已发布站点,不做版本留存。
+面向资产作者的完整收录指南见 [CONTRIBUTING.md](CONTRIBUTING.md):收录条件、包与登记文件的准备、本地校验、合并后的机器核对、签名边界与常见拒绝原因。登记字段与作者站点发布约定见 [catalog/README.md](catalog/README.md),CI 步骤与失败边界见 [.github/pipeline.README.md](.github/pipeline.README.md)。本节不重复维护步骤正文。
 
 ## 消费方如何取包
 

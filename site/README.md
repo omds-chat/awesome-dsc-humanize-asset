@@ -33,7 +33,7 @@
 | `assetSpecVersion` | `spec_version` | 本合集据以判定资产包合规的规范版本 |
 | `assetFormatVersion` | `format_version` | 拉取时接受的包元数据 `formatVersion` |
 
-上游升版时,改这两个字段并同步 `scripts/lib/fetch.mjs` 的字段约束;不做静默兼容。
+上游升版时,改这两个字段并同步 `scripts/lib/remote.mjs` 的字段约束;不做静默兼容。
 
 ## 没有站点工程
 
