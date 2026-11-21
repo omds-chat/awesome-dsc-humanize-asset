@@ -22,7 +22,7 @@ concurrency:
 # 发布目录里的证书只有 certs/awesome-dsc-humanize-asset/,根证书不下发。
 env:
   EEC_SECRET_KEY: ${{ secrets.AWESOME_DSC_HUMANIZE_ASSET_EEC_SECRET }}
-  ROOT_CA_PEM: ${{ secrets.DS_CHAT_ROOT_CA }}
+  ROOT_CA_PEM: ${{ secrets.DSC_HUMANIZE_ROOT_CA }}
   ROOT_CA_URL: ${{ vars.ROOT_CA_URL }}
   PUBLISHED_BASE_URL: ${{ vars.PUBLISHED_BASE_URL }}
 
@@ -43,7 +43,7 @@ jobs:
       - name: Check OpenSSL
         run: openssl version
 
-      # 根证书二选一:secrets.DS_CHAT_ROOT_CA 直接给 PEM 文本;vars.ROOT_CA_URL 给下载地址。
+      # 根证书二选一:secrets.DSC_HUMANIZE_ROOT_CA 直接给 PEM 文本;vars.ROOT_CA_URL 给下载地址。
       # 它只用于本流程自检证书链,不随发布目录分发。
       - name: Resolve root CA
         run: |
@@ -51,12 +51,12 @@ jobs:
           target="$RUNNER_TEMP/root_ca.crt"
           if [ -n "${ROOT_CA_PEM:-}" ]; then
             printf '%s\n' "$ROOT_CA_PEM" > "$target"
-            echo "根证书来源: secrets.DS_CHAT_ROOT_CA"
+            echo "根证书来源: secrets.DSC_HUMANIZE_ROOT_CA"
           elif [ -n "${ROOT_CA_URL:-}" ]; then
             curl -fsSL "$ROOT_CA_URL" -o "$target"
             echo "根证书来源: $ROOT_CA_URL"
           else
-            echo "::error::缺少根证书,请设置 secrets.DS_CHAT_ROOT_CA 或 vars.ROOT_CA_URL"
+            echo "::error::缺少根证书,请设置 secrets.DSC_HUMANIZE_ROOT_CA 或 vars.ROOT_CA_URL"
             exit 1
           fi
           echo "ROOT_CA_PATH=$target" >> "$GITHUB_ENV"
