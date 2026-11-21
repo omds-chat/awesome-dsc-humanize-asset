@@ -243,7 +243,7 @@ node scripts/verify-bundle.mjs --dir dist/pages --allow-unsigned-manifests   # �
 node scripts/verify-bundle.mjs --dir dist/pages            # 签名就位后的完整校验
 ```
 
-脚本零依赖,只用 Node 内置模块(Node 20 及以上);不联网的只有校验脚本,构建脚本按登记访问作者站点。本机跑完整签名需要 OpenSSL 3.0 及以上,签名命令见 [.github/pipeline.README.md](.github/pipeline.README.md)。
+脚本零依赖,只用 Node 内置模块(Node 20 及以上);不联网的只有校验脚本,构建脚本按登记访问作者站点。本地跑完整签名需要 OpenSSL 3.0 及以上,签名命令见 [.github/pipeline.README.md](.github/pipeline.README.md)。
 
 ## 安全提示
 
