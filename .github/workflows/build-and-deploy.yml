@@ -17,12 +17,12 @@ concurrency:
   group: pages
   cancel-in-progress: false
 
-# 私钥只有一处来源:secrets.EEC_SECRET_KEY,即本合集终端签名证书的私钥,只在本流程内存与临时目录中出现。
+# 私钥只有一处来源:secrets.AWESOME_DSC_HUMANIZE_ASSET_EEC_SECRET,即本合集终端签名证书的私钥,只在本流程内存与临时目录中出现。
 # 根证书私钥属于 dsc-humanize 仓库的离线环境,绝不出现在本流程。
 # 发布目录里的证书只有 certs/awesome-dsc-humanize-asset/,根证书不下发。
 env:
-  EEC_SECRET_KEY: ${{ secrets.EEC_SECRET_KEY }}
-  ROOT_CA_PEM: ${{ secrets.ROOT_CA_PEM }}
+  EEC_SECRET_KEY: ${{ secrets.AWESOME_DSC_HUMANIZE_ASSET_EEC_SECRET }}
+  ROOT_CA_PEM: ${{ secrets.DS_CHAT_ROOT_CA }}
   ROOT_CA_URL: ${{ vars.ROOT_CA_URL }}
   PUBLISHED_BASE_URL: ${{ vars.PUBLISHED_BASE_URL }}
 
@@ -43,7 +43,7 @@ jobs:
       - name: Check OpenSSL
         run: openssl version
 
-      # 根证书二选一:secrets.ROOT_CA_PEM 直接给 PEM 文本;vars.ROOT_CA_URL 给下载地址。
+      # 根证书二选一:secrets.DS_CHAT_ROOT_CA 直接给 PEM 文本;vars.ROOT_CA_URL 给下载地址。
       # 它只用于本流程自检证书链,不随发布目录分发。
       - name: Resolve root CA
         run: |
@@ -51,12 +51,12 @@ jobs:
           target="$RUNNER_TEMP/root_ca.crt"
           if [ -n "${ROOT_CA_PEM:-}" ]; then
             printf '%s\n' "$ROOT_CA_PEM" > "$target"
-            echo "根证书来源: secrets.ROOT_CA_PEM"
+            echo "根证书来源: secrets.DS_CHAT_ROOT_CA"
           elif [ -n "${ROOT_CA_URL:-}" ]; then
             curl -fsSL "$ROOT_CA_URL" -o "$target"
             echo "根证书来源: $ROOT_CA_URL"
           else
-            echo "::error::缺少根证书,请设置 secrets.ROOT_CA_PEM 或 vars.ROOT_CA_URL"
+            echo "::error::缺少根证书,请设置 secrets.DS_CHAT_ROOT_CA 或 vars.ROOT_CA_URL"
             exit 1
           fi
           echo "ROOT_CA_PATH=$target" >> "$GITHUB_ENV"
@@ -97,7 +97,7 @@ jobs:
       - name: Sign manifests with EEC
         run: |
           set -euo pipefail
-          test -n "${EEC_SECRET_KEY:-}" || { echo "::error::缺少 secrets.EEC_SECRET_KEY"; exit 1; }
+          test -n "${EEC_SECRET_KEY:-}" || { echo "::error::缺少 secrets.AWESOME_DSC_HUMANIZE_ASSET_EEC_SECRET"; exit 1; }
           key="$RUNNER_TEMP/eec_secret.pem"
           printf '%s\n' "$EEC_SECRET_KEY" > "$key"
           eec="dist/pages/certs/awesome-dsc-humanize-asset/awesome-dsc-humanize-asset-eec.crt"
