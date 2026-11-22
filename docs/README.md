@@ -10,7 +10,7 @@
 | [README.en-US.md](../README.en-US.md) | 上一行的英文版 | 与 README.md 逐节对应 | 需要英文说明或对外沟通时 | 用户、贡献者 |
 | [catalog/README.md](../catalog/README.md) | 收录登记的唯一入口说明 | 登记目录结构、`author.json` 与 `package.json` 字段、作者站点发布约定、标签词表、收录后的处理、下架与 `removed.json` | 提交收录、修改登记、撤回或下架包时 | 贡献者 |
 | [CONTRIBUTING.md](../CONTRIBUTING.md) | 面向资产作者的收录指南 | 收录条件、包与登记文件的准备、本地校验、合并后的机器核对、证书与签名边界、常见拒绝原因 | 准备投稿、写 PR 说明、判断登记为什么被拒时 | 贡献者 |
-| [.github/pipeline.README.md](../.github/pipeline.README.md) | 构建流水线说明 | 步骤与失败边界、证书位置与是否下发、签名命令、发布目录结构与清单覆盖、revision 语义、本地复现 | 改流水线、复现构建、排查发布失败 | 维护者 |
+| [.github/pipeline.README.md](../.github/pipeline.README.md) | 构建流水线说明 | 步骤与失败边界、证书位置与是否下发、签名命令、发布目录结构与清单覆盖、revision 语义、Pages 环境文件结构与入口地址形态、分支结构、本地复现 | 改流水线、复现构建、排查发布失败、核对站点结构与分支情况 | 维护者 |
 | [site/README.md](../site/README.md) | 合集设置说明 | `tags.json` 词表、`meta.json` 的规范版本声明、为什么没有站点工程 | 改标签、改接受的格式版本、排查构建版本判定 | 维护者、贡献者 |
 | [schemas/README.md](../schemas/README.md) | JSON Schema 索引 | 五份 schema 的约束对象与要点、Schema 管不到而由脚本承担的判定 | 改字段、加校验、判断某份 JSON 结构是否合法 | 维护者、Agent |
 | [docs/design/asset-collection-pipeline.md](design/asset-collection-pipeline.md) | 流水线机制与取舍的设计说明 | catalog 驱动模型、拉取模型与 `files` 清单的理由、三层清单与 revision、证书与签名边界、异常剔除、与插件合集的差异、已否决方案、未定稿项 | 判断「为什么这样定」「这样改会不会破坏既有取舍」时 | 维护者、Agent |
@@ -47,7 +47,7 @@ awesome-dsc-humanize-asset/
 ├── .gitattributes                  统一 LF 换行
 ├── .gitignore
 ├── .github/
-│   ├── pipeline.README.md          构建流水线说明:步骤、证书位置、签名命令
+│   ├── pipeline.README.md          构建流水线说明:步骤、证书位置、签名命令、站点文件结构与分支结构
 │   └── workflows/
 │       └── build-and-deploy.yml    仓库级校验、拉取资产包、清单签名、独立验签、发布
 ├── COPYRIGHT
@@ -59,7 +59,7 @@ awesome-dsc-humanize-asset/
 ├── catalog/                        收录登记:作者、站点基址与包标识
 │   ├── README.md                   登记说明与作者站点发布约定
 │   └── removed.json                已下架的包清单
-├── certs/                          公开信任材料,随发布目录分发,不进任何清单
+├── certs/                          公开信任材料,不进任何清单;仅 awesome-dsc-humanize-asset/ 随发布目录分发,根证书不下发
 │   ├── dsc-humanize/               资产侧唯一信任锚:根证书与配对公钥
 │   └── awesome-dsc-humanize-asset/ 本合集终端签名证书与配对公钥
 ├── docs/

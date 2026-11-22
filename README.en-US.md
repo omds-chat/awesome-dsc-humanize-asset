@@ -36,7 +36,7 @@ This repository does not ship a template repository that replicates itself: ther
 
 ## Distribution layout
 
-The collection is published as a Pages bundle. On every release, CI pulls packages from their author sites according to `catalog/`, assembles the release directory, signs the three-layer manifests with the collection EEC, and replaces the published content wholesale. Packages are organised as author / package id / version, and a version directory *is* the package itself, byte for byte as the author published it.
+The collection is published as a Pages bundle. On every release, CI pulls packages from their author sites according to `catalog/`, assembles the release directory, signs the three-layer manifests with the collection EEC, and replaces the published content wholesale. Packages are organised as author / package id / version, and a version directory *is* the package itself, byte for byte as the author published it. For the deployed Pages file structure, the entry-address form and this repository's branch layout, see the "Pages environment file structure" and "Branch structure" sections of [.github/pipeline.README.md](.github/pipeline.README.md).
 
 ```text
 <collection>/
