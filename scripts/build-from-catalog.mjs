@@ -16,7 +16,7 @@
  *     node scripts/build-from-catalog.mjs --catalog catalog --certs certs --meta site/meta.json --tags site/tags.json --out dist/pages
  */
 
-import { existsSync, mkdirSync, renameSync, rmSync, writeFileSync } from 'node:fs'
+import { copyFileSync, existsSync, mkdirSync, renameSync, rmSync, writeFileSync } from 'node:fs'
 import { dirname, join, resolve } from 'node:path'
 import { checkPresetTags, checkRemoved, readCatalog, readPresetTags } from './lib/catalog.mjs'
 import { checkCerts } from './lib/certs.mjs'
@@ -321,6 +321,8 @@ async function main() {
 
     writeJsonFile(join(staging, 'meta.json'), collectionMeta)
     writeJsonFile(join(staging, 'tags.json'), presetTags)
+    // favicon 取仓库根的组织图标,进站点根
+    copyFileSync('favicon.ico', join(staging, 'favicon.ico'))
 
     copyCatalogTree({ catalogDir, staging, catalog, byAuthor })
     writeJsonFile(
